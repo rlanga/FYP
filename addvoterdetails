@@ -1,0 +1,9 @@
+peer chaincode install -p ./ -n ElectoralRegisterChainCode -v 0.2
+
+peer chaincode instantiate -n ElectoralRegisterChainCode -v 0.1 -c '{"Args":[""]}' -C myc
+
+peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"AddVoter", "Args":["123","Tom","Smith","12/03/84","cityconst","no"]}' -C myc
+
+peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"GetVoterDetails", "Args":["123"]}' -C myc
+
+
