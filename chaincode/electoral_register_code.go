@@ -1,4 +1,4 @@
-package chaincode
+package main
 
 import (
 	"encoding/json"
@@ -29,6 +29,11 @@ type Candidate struct {
 	Lastname     string `json:"lastname"`
 	Constituency string `json:"constituency"`
 	Position     string `json:"position"`
+}
+
+type Constituency struct {
+	Name      string      `json:"name"`
+	Candidate []Candidate `json:"candidates"`
 }
 
 /*Add a new voter to the ledger*/
@@ -96,7 +101,7 @@ func GetVoterDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, e
 }
 
 /*Gets candidate details*/
-func GetCandidateDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func GetIndividualCandidateDetails(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	logger.Debug("getting candidate info")
 
 	if len(args) != 1 {
@@ -113,6 +118,28 @@ func GetCandidateDetails(stub shim.ChaincodeStubInterface, args []string) ([]byt
 	if bytes == nil {
 		logger.Error("Candidate not found")
 		return nil, fmt.Errorf("Candidate not found: %s", args[0])
+	}
+	return bytes, nil
+}
+
+/*Gets constituency candidate list*/
+func GetConstituencyCandidateList(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	logger.Debug("getting candidate info")
+
+	if len(args) != 1 {
+		logger.Error("Invalid number of arguments")
+		return nil, errors.New("Missing constituency name")
+	}
+
+	var constituency = args[0]
+	bytes, err := stub.GetState(constituency)
+	if err != nil {
+		logger.Error("Could not load "+constituency+" candidate list from ledger", err)
+		return nil, err
+	}
+	if bytes == nil {
+		logger.Error("Constituency not found")
+		return nil, fmt.Errorf("Constituency not found: %s", args[0])
 	}
 	return bytes, nil
 }
@@ -186,6 +213,7 @@ func (t *ElectoralRegisterChainCode) Invoke(stub shim.ChaincodeStubInterface) pe
 			return shim.Error("Could not get candidate details")
 		}
 		return shim.Success(result)
+		// case "GetConstituencyCandidateDetails":
 	}
 
 	return shim.Error("Unknown function")

@@ -6,4 +6,6 @@ peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"AddV
 
 peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"GetVoterDetails", "Args":["123"]}' -C myc
 
+peer chaincode invoke -n VotingCode -v 0.2 -c '{"Function":"GetIndividualCandidateDetails", "Args":["1"]}' -C myc
+
 
