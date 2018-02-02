@@ -30,14 +30,16 @@ type Candidate struct {
 	ID           int    `json:"id"`
 	Firstname    string `json:"firstname"`
 	Lastname     string `json:"lastname"`
+	Party        string `json:"party"`
 	Constituency string `json:"constituency"`
 	Position     string `json:"position"`
 }
 
 type Vote struct {
-	ObjectType   string `json:"docType"`
-	CandidateID  string `json:"candidateid"`
-	constituency string `json:"constituency"`
+	ObjectType        string `json:"docType"`
+	CandidateID       int    `json:"candidateid"`
+	CandidatePosition string `json:"candidateposition"`
+	Constituency      string `json:"constituency"`
 }
 
 func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString string) ([]byte, error) {
