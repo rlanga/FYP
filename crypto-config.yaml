@@ -15,11 +15,11 @@ OrdererOrgs:
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
-    # Specs:
-    #   - Hostname: orderer
+    Specs:
+      - Hostname: orderer
 
-    Template:
-      Count: 3
+    # Template:
+    #   Count: 3
 # ---------------------------------------------------------------------------
 # "PeerOrgs" - Definition of organizations managing peer nodes
 # ---------------------------------------------------------------------------
@@ -45,11 +45,12 @@ PeerOrgs:
     #                 which obtains its values from the Spec.Hostname and
     #                 Org.Domain, respectively.
     # ---------------------------------------------------------------------------
-    # Specs:
+    Specs:
     #   - Hostname: foo # implicitly "foo.org1.example.com"
     #     CommonName: foo27.org5.example.com # overrides Hostname-based FQDN set above
-    #   - Hostname: bar
-    #   - Hostname: baz
+      # - Hostname: peer
+      - Hostname: cli
+      - Hostname: chaincode
     # ---------------------------------------------------------------------------
     # "Template"
     # ---------------------------------------------------------------------------
@@ -62,17 +63,16 @@ PeerOrgs:
     # sections and the aggregate nodes will be created for you.  Take care with
     # name collisions
     # ---------------------------------------------------------------------------
-    Template:
-      Count: 5
-      # Start: 5
-      # Hostname: {{.Prefix}}{{.Index}} # default
+    # Template:
+    #   Count: 5
+    #   Hostname: {{.Prefix}}{{.Index}} # default
     # ---------------------------------------------------------------------------
     # "Users"
     # ---------------------------------------------------------------------------
     # Count: The number of user accounts _in addition_ to Admin
     # ---------------------------------------------------------------------------
     Users:
-      Count: 1
+      Count: 2
   # ---------------------------------------------------------------------------
   # Org2: See "Org1" for full specification
   # ---------------------------------------------------------------------------

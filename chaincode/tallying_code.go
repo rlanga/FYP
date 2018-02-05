@@ -251,7 +251,7 @@ func (t *TallyingChainCode) Invoke(stub shim.ChaincodeStubInterface) peer.Respon
 	case "CountConstituencyCandidateVotes":
 		return t.CountConstituencyCandidateVotes(stub, args)
 	case "CountPresidentialCandidateVotes":
-		return t.GetIndividualCandidateDetails(stub)
+		return t.CountPresidentialCandidateVotes(stub)
 
 	}
 
