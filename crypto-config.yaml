@@ -29,6 +29,7 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: BallotMachines
     Domain: BallotMachines.ec.ug
+
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
@@ -49,8 +50,8 @@ PeerOrgs:
     #   - Hostname: foo # implicitly "foo.org1.example.com"
     #     CommonName: foo27.org5.example.com # overrides Hostname-based FQDN set above
       # - Hostname: peer
-      - Hostname: cli
-      - Hostname: chaincode
+      # - Hostname: cli
+      # - Hostname: chaincode
     # ---------------------------------------------------------------------------
     # "Template"
     # ---------------------------------------------------------------------------
@@ -63,9 +64,9 @@ PeerOrgs:
     # sections and the aggregate nodes will be created for you.  Take care with
     # name collisions
     # ---------------------------------------------------------------------------
-    # Template:
-    #   Count: 5
-    #   Hostname: {{.Prefix}}{{.Index}} # default
+    Template:
+      Count: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default
     # ---------------------------------------------------------------------------
     # "Users"
     # ---------------------------------------------------------------------------

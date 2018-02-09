@@ -1,11 +1,17 @@
-peer chaincode install -p ./ -n ElectoralRegisterChainCode -v 0.2
+peer chaincode install -p ./ -n voting_code -v 0.1 -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 
-peer chaincode instantiate -n ElectoralRegisterChainCode -v 0.1 -c '{"Args":[""]}' -C myc
+peer chaincode instantiate -n voting_code -v 0.1 -c '{"Args":[""]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 
-peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"AddVoter", "Args":["123","Tom","Smith","12/03/84","cityconst","no"]}' -C myc
+peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"AddVoter", "Args":["123","Tom","Smith","12/03/84","cityconst","no"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 
-peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"GetVoterDetails", "Args":["123"]}' -C myc
+peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"GetVoterDetails", "Args":["123"]}' -C elections
 
-peer chaincode invoke -n VotingCode -v 0.2 -c '{"Function":"GetIndividualCandidateDetails", "Args":["1"]}' -C myc
+peer chaincode invoke -n VotingCode -c '{"Function":"GetIndividualCandidateDetails", "Args":["1"]}' -C myc
+
+peer chaincode invoke -n voting_code -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 
 
+CORE_CHAINCODE_ID_NAME=VotingCode:0.1 ./voting_code & disown
+peer chaincode install -p ./ -n VotingCode -v 0.1 -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode instantiate -n VotingCode -v 0.1 -c '{"Args":[""]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem

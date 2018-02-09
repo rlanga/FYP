@@ -132,9 +132,9 @@ func (t *VotingChainCode) GetConstituencyCandidateList(stub shim.ChaincodeStubIn
 func (t *VotingChainCode) CastVote(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	logger.Debug("Casting vote")
 
-	if len(args) != 2 {
+	if len(args) != 3 {
 		logger.Error("Invalid number of args")
-		return shim.Error("Expected two arguments to cast vote")
+		return shim.Error("Expected three arguments to cast vote")
 	}
 
 	// var vote Vote
@@ -148,7 +148,11 @@ func (t *VotingChainCode) CastVote(stub shim.ChaincodeStubInterface, args []stri
 	// 	voter.Hasvoted = b
 	// }
 
-	vote := &Vote{"vote", args[0], args[1]}
+	id, sd := strconv.Atoi(args[0])
+	if sd != nil {
+		shim.Error(sd.Error())
+	}
+	vote := &Vote{"vote", id, args[1], args[2]}
 	voteBytes, f := json.Marshal(vote)
 	if f != nil {
 		shim.Error(f.Error())
@@ -164,9 +168,9 @@ func (t *VotingChainCode) CastVote(stub shim.ChaincodeStubInterface, args []stri
 
 func (t *VotingChainCode) Init(stub shim.ChaincodeStubInterface) peer.Response {
 	candidates := []*Candidate{
-		&Candidate{"candidate", 1, "John", "Smith", "constituencyA", "president"},
-		&Candidate{"candidate", 2, "Jane", "Doe", "constituencyB", "president"},
-		&Candidate{"candidate", 3, "Tom", "Sawyer", "constituencyC", "president"}}
+		&Candidate{"candidate", 1, "John", "Smith", "partyA", "constituencyA", "president"},
+		&Candidate{"candidate", 2, "Jane", "Doe", "PartyB", "constituencyB", "president"},
+		&Candidate{"candidate", 3, "Tom", "Sawyer", "PartyC", "constituencyC", "president"}}
 
 	for _, x := range candidates {
 		candidateBytes, f := json.Marshal(x)
@@ -235,7 +239,7 @@ func main() {
 
 	err := shim.Start(new(VotingChainCode))
 	if err != nil {
-		logger.Error("Could not start VotingChaincode")
+		logger.Error("Could not start VotingChaincode: " + err.Error())
 	} else {
 		logger.Info("VotingChaincode successfully started")
 	}

@@ -17,10 +17,10 @@ services:
       - FABRIC_CA_SERVER_CA_NAME=ca
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.BallotMachines.ec.ug-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ab237c56e8df3c1d8b8daa0dde751b26a47c2ff0e1b1a653479fad5a34970848_sk
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/7dfce585b0f3b602b2f186985e3ab03de734702a8153d861679207b3d57dd1c8_sk
     ports:
       - "7054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.BallotMachines.ec.ug-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/ab237c56e8df3c1d8b8daa0dde751b26a47c2ff0e1b1a653479fad5a34970848_sk -b admin:adminpw -d'
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.BallotMachines.ec.ug-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/7dfce585b0f3b602b2f186985e3ab03de734702a8153d861679207b3d57dd1c8_sk -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/ca:/etc/hyperledger/fabric-ca-server-config
     networks:
@@ -34,18 +34,20 @@ services:
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/fabric/channel-artifacts/genesis.block
+      # - ORDERER_GENERAL_GENESISPROFILE=BallotMachinesMSP
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer.ec.ug/msp
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/msp/orderer.ec.ug/tls/server.key
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/msp/orderer.ec.ug/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/msp/orderer.ec.ug/tls/ca.crt]
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/msp/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/msp/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/msp/orderer/tls/ca.crt]
       - GRPC_TRACE=all=true,
       - GRPC_VERBOSITY=debug
     working_dir: /usr/local/bin
     command: orderer
     volumes:
-      - ./crypto-config/ordererOrganizations/ec.ug/orderers:/etc/hyperledger/msp
+      - ./crypto-config/ordererOrganizations/ec.ug/orderers/orderer.ec.ug/:/etc/hyperledger/msp/orderer
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer0.BallotMachines.ec.ug/:/etc/hyperledger/msp/BallotMachines
       - ./channel-artifacts/:/etc/hyperledger/fabric/channel-artifacts
       - ./channel-artifacts/orderer.block:/etc/hyperledger/fabric/orderer.block
     ports:
@@ -79,11 +81,13 @@ services:
       # - CORE_PEER_TLS_CLIENTROOTCAS_FILES=
       # - CORE_PEER_TLS_CLIENTCERT_FILE=
       # - CORE_PEER_TLS_CLIENTKEY_FILE=
-      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peers/peer0.BallotMachines.ec.ug/msp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer0.BallotMachines.ec.ug/tls/:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer0.BallotMachines.ec.ug/msp/:/etc/hyperledger/fabric/msp
+      # - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/users/:/etc/hyperledger/msp/users
     ports:
       - 7051:7051
       - 7053:7053
@@ -119,11 +123,12 @@ services:
       # - CORE_PEER_TLS_CLIENTROOTCAS_FILES=
       # - CORE_PEER_TLS_CLIENTCERT_FILE=
       # - CORE_PEER_TLS_CLIENTKEY_FILE=
-      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peers/peer1.BallotMachines.ec.ug/msp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer1.BallotMachines.ec.ug/tls/:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer1.BallotMachines.ec.ug/msp/:/etc/hyperledger/fabric/msp
     ports:
       - 8051:7051
       - 8053:7053
@@ -159,11 +164,12 @@ services:
       # - CORE_PEER_TLS_CLIENTROOTCAS_FILES=
       # - CORE_PEER_TLS_CLIENTCERT_FILE=
       # - CORE_PEER_TLS_CLIENTKEY_FILE=
-      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peers/peer2.BallotMachines.ec.ug/msp
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer2.BallotMachines.ec.ug/tls/:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer2.BallotMachines.ec.ug/msp/:/etc/hyperledger/fabric/msp
     ports:
       - 9051:7051
       - 9053:7053
@@ -199,11 +205,12 @@ services:
       # - CORE_PEER_TLS_CLIENTROOTCAS_FILES=
       # - CORE_PEER_TLS_CLIENTCERT_FILE=
       # - CORE_PEER_TLS_CLIENTKEY_FILE=
-      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peers/peer3.BallotMachines.ec.ug/msp
+      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer3.BallotMachines.ec.ug/tls/:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer3.BallotMachines.ec.ug/msp/:/etc/hyperledger/fabric/msp
     ports:
       - 10051:7051
       - 10053:7053
@@ -239,11 +246,12 @@ services:
       # - CORE_PEER_TLS_CLIENTROOTCAS_FILES=
       # - CORE_PEER_TLS_CLIENTCERT_FILE=
       # - CORE_PEER_TLS_CLIENTKEY_FILE=
-      # - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peers/peer4.BallotMachines.ec.ug/msp
+      # - CORE_PEER_MSPCONFIGPATH/etc/hyperledger/fabric/msp
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb4:5984
     volumes:
       - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer4.BallotMachines.ec.ug/tls/:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/peers/peer4.BallotMachines.ec.ug/msp/:/etc/hyperledger/fabric/msp
     ports:
       - 11051:7051
       - 11053:7053
