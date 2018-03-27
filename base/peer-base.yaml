@@ -13,9 +13,15 @@ services:
       - CORE_PEER_LOCALMSPDIR=/etc/hyperledger/msp/msp
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_LOGGING_PEER=debug
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_VALIDATOR_CONSENSUS_PLUGIN=pbft
+      - CORE_PBFT_GENERAL_MODE=batch
     volumes:
       - /var/run/:/host/var/run/
-      - ./crypto-config/peerOrganizations/BallotMachines.ec.ug/:/etc/hyperledger/msp
-      - ./crypto-config/ordererOrganizations/ec.ug/:/etc/hyperledger/msp/orderer
+      - ../crypto-config/peerOrganizations/BallotMachines.ec.ug/:/etc/hyperledger/msp
+      - ../crypto-config/ordererOrganizations/ec.ug/:/etc/hyperledger/msp/orderer
+      - ../:/opt/gopath/src/github.com/hyperledger/fabric/peer
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start --peer-chaincodedev=true -o orderer.ec.ug:7050
+    command: /bin/bash -c './join-channel.sh' 

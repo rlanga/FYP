@@ -6,12 +6,76 @@ peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"AddV
 
 peer chaincode invoke -n ElectoralRegisterChainCode -v 0.4 -c '{"Function":"GetVoterDetails", "Args":["123"]}' -C elections
 
-peer chaincode invoke -n VotingCode -c '{"Function":"GetIndividualCandidateDetails", "Args":["1"]}' -C myc
+peer chaincode invoke -n VotingCode -c '{"Function":"GetIndividualCandidateDetails", "Args":["1"]}' -C elections
 
 peer chaincode invoke -n voting_code -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 
+for i in {0..4}
+do
+    docker exec  peer${i}.BallotMachines.ec.ug peer channel join -b elections.block -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+done
 
-CORE_CHAINCODE_ID_NAME=VotingCode:0.1 ./voting_code & disown
+peer chaincode package -n VotingCode -p ./ -v 0.1 -s -S -i "OR('BallotMachines.admin', 'BallotMachines.member')" ccpack.out
+
+CORE_CHAINCODE_ID_NAME=VotingCode:0.1 ./votingCode/voting_code & disown
+CORE_CHAINCODE_ID_NAME=TallyingCode:0.1 ./tallyingCode/tallying_code & disown
 peer chaincode install -p ./ -n VotingCode -v 0.1 -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode install -p ./ -n TallyingCode -v 0.1 -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 peer chaincode instantiate -n VotingCode -v 0.1 -c '{"Args":[""]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode instantiate -n TallyingCode -v 0.1 -c '{"Args":[""]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
 peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CountPresidentialCandidateVotes", "Args":[""]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+
+docker exec -e "CORE_PEER_LOCALMSPID=BallotMachinesMSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@BallotMachines.ec.ug/msp" peer1.BallotMachines.ec.ug peer channel join -b elections.block -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+
+
+# declare -a votes=('{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}'
+#                 '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}'
+#                 '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}'
+#                 '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}'
+#                 '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}'
+#                 '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}'
+#                 '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}'
+#                 '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}'
+#                 '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}'
+#                 '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}'
+#                 '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}'
+#                 '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}'
+#                 '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}'
+#                 '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}'
+# )
+
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["1", "president", "constituencyA"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["2", "president", "constituencyB"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+peer chaincode invoke -n VotingCode -c '{"Function":"CastVote", "Args":["3", "president", "constituencyC"]}' -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+
+for vote in "${votes[@]}"
+do
+    peer chaincode invoke -n VotingCode -c $(print "$vote") -C elections -o orderer.ec.ug:7050 --tls --cafile /etc/hyperledger/msp/orderer/msp/tlscacerts/tlsca.ec.ug-cert.pem
+done
+
+for arr in "${testarr[@]}"
+do
+    $arr
+done

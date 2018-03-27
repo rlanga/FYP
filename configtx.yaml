@@ -47,7 +47,7 @@ Organizations:
     - &OrdererOrg
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: OrdererOrg
+        Name: OrdererMSP
 
         # ID to load the MSP definition as
         ID: OrdererMSP
@@ -124,11 +124,11 @@ Orderer: &OrdererDefaults
         # max bytes will result in a batch larger than preferred max bytes.
         PreferredMaxBytes: 512 KB
 
-    Kafka:
+    # Kafka:
         # Brokers: A list of Kafka brokers to which the orderer connects
         # NOTE: Use IP:port notation
-        Brokers:
-            - 127.0.0.1:9092
+        # Brokers:
+            # - 127.0.0.1:9092
 
     # Organizations is the list of orgs which are defined as participants on
     # the orderer side of the network
